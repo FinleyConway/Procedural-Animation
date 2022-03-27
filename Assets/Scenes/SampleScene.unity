@@ -166,15 +166,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 202fc6ecbefb7254b87a77070530010a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPoint: {fileID: 630032827}
+  raycastOrigin: {fileID: 630032827}
   groundCheckDistance: 10
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   otherTarget: {fileID: 1108930036}
-  stepDistance: 1
-  stepHeight: 1
-  limbSpeed: 3
+  body: {fileID: 3598218841099697560}
+  targetDistance: 0.5
+  targetHeight: 0.5
+  targetSpeed: 3
 --- !u!1 &197874328
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,15 +432,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 202fc6ecbefb7254b87a77070530010a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPoint: {fileID: 1204192987}
+  raycastOrigin: {fileID: 1204192987}
   groundCheckDistance: 10
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   otherTarget: {fileID: 1033599111}
-  stepDistance: 1
-  stepHeight: 1
-  limbSpeed: 3
+  body: {fileID: 3598218841099697560}
+  targetDistance: 0.5
+  targetHeight: 0.5
+  targetSpeed: 3
 --- !u!1 &586909772
 GameObject:
   m_ObjectHideFlags: 0
@@ -892,15 +894,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 202fc6ecbefb7254b87a77070530010a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPoint: {fileID: 197874329}
+  raycastOrigin: {fileID: 197874329}
   groundCheckDistance: 10
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   otherTarget: {fileID: 342102169}
-  stepDistance: 1
-  stepHeight: 1
-  limbSpeed: 3
+  body: {fileID: 3598218841099697560}
+  targetDistance: 0.5
+  targetHeight: 0.5
+  targetSpeed: 3
 --- !u!1 &1108930034
 GameObject:
   m_ObjectHideFlags: 0
@@ -944,15 +947,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 202fc6ecbefb7254b87a77070530010a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPoint: {fileID: 315645218}
+  raycastOrigin: {fileID: 315645218}
   groundCheckDistance: 10
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   otherTarget: {fileID: 106287556}
-  stepDistance: 1
-  stepHeight: 1
-  limbSpeed: 3
+  body: {fileID: 3598218841099697560}
+  targetDistance: 0.5
+  targetHeight: 0.5
+  targetSpeed: 3
 --- !u!1 &1204192986
 GameObject:
   m_ObjectHideFlags: 0
@@ -1946,7 +1950,7 @@ Rigidbody:
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &3601680106711877875
@@ -1975,5 +1979,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c378c85bb81d4d41b73681fd7c8c9fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 2
-  jumpForce: 500
+  speed: 4

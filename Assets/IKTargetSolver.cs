@@ -2,88 +2,118 @@ using UnityEngine;
 
 public class IKTargetSolver : MonoBehaviour
 {
-    [SerializeField] private Transform targetPoint = default;
+    [Header("Raycast Variables")]
+    [SerializeField] private Transform raycastOrigin = default;
     [SerializeField] private float groundCheckDistance = 10;
     [SerializeField] private LayerMask groundLayer = default;
-    [SerializeField] private IKTargetSolver otherTarget = default;
 
-    [SerializeField] private float stepDistance;
-    [SerializeField] private float stepHeight;
-    [SerializeField] private float limbSpeed;
-    private Vector3 currentPosition;
-    private Vector3 oldPosition;
-    private Vector3 newPosition;
+    [Header("The Objects Parts")]
+    [SerializeField] private IKTargetSolver otherTarget = default;
+    [SerializeField] private Transform body = default;
+
+    [Header("Leg Settings")]
+    [SerializeField] private float targetDistance;
+    [SerializeField] private float targetHeight;
+    [SerializeField] private float targetSpeed;
+
+    private Vector3 currentTargetPosition;
+    private Vector3 oldTargetPosition;
+    private Vector3 newTargetPosition;
+
+    private Vector3 currentNormal;
+    private Vector3 oldNormal;
+    private Vector3 newNormal;
+
+    private Vector3 raycastPosition;
+    private Vector3 raycastNormal;
+
+    private float currentDistance;
     private float moveTime;
 
     private void Awake()
     {
-        currentPosition = transform.position;
-        oldPosition = currentPosition;
-        newPosition = currentPosition;
         moveTime = 1;
+
+        currentTargetPosition = transform.position;
+        oldTargetPosition = currentTargetPosition;
+        newTargetPosition = currentTargetPosition;
+
+        currentNormal = transform.up;
+        oldNormal = currentNormal;
+        newNormal = currentNormal;
     }
 
     private void Update()
     {
-        // fixes legs to the floor and updates when the current position updates
-        transform.position = currentPosition;
+        // update current and normal positon
+        transform.position = currentTargetPosition;
+        transform.up = currentNormal;
 
-        GetNextTargetPosition();
-        MoveTarget();
+        GetTargetNewPosition();
+        MoveTargetPosition();
     }
 
-    // uses a raycast to get the next location 
-    private void GetNextTargetPosition()
+    // finds the next target posiiton
+    private void GetTargetNewPosition()
     {
         RaycastHit hit;
-        // Get position from raycast point.
-        if (Physics.Raycast(targetPoint.position, Vector3.down, out hit, 10, groundLayer))
+
+        // sends a raycast on surface level to find target position 
+        if (Physics.Raycast(raycastOrigin.position, body.up.normalized * -1, out hit, groundCheckDistance, groundLayer))
         {
-            #if UNITY_EDITOR
-            Debug.DrawRay(targetPoint.position, Vector3.down * groundCheckDistance);
-            #endif
+            // get position and rotation of the surface of the ground
+            raycastPosition = hit.point;
+            raycastNormal = hit.normal;
+        }
 
-            // Gets the distance between the current location and the raycast pos and sets the new pos depning on the max step dist.
-            if (Vector3.Distance(transform.position, hit.point) > stepDistance && moveTime >= 1 && !otherTarget.IsTargetMoving)
-            {
-                #if UNITY_EDITOR
-                DebugExtension.DebugPoint(hit.point, 1);
-                Debug.DrawLine(transform.position, hit.point);
-                #endif
-                moveTime = 0;
+        // get the distance between the target position and the raycast position
+        currentDistance = Vector3.Distance(raycastPosition, transform.position);
 
-                // New position.
-                newPosition = hit.point;
-            }
+        // move leg if distance is too big
+        if (currentDistance > targetDistance && moveTime >= 1 && !otherTarget.IsLegMoving)
+        {
+            moveTime = 0;
+            newTargetPosition = raycastPosition;
+            newNormal = raycastNormal;
         }
     }
 
-    // lerps target position to the new position
-    private void MoveTarget()
+    private void MoveTargetPosition()
     {
         if (moveTime < 1)
         {
-            // lerp position to the new position
-            Vector3 nextPosition = Vector3.Lerp(oldPosition, newPosition, moveTime);
-            // give the y axis an arch movement
-            nextPosition.y += Mathf.Sin(moveTime * Mathf.PI) * stepHeight;
+            // lerp current postiion to new position
+            Vector3 nextPosition = Vector3.Lerp(oldTargetPosition, newTargetPosition, moveTime);
+            // curve the y axis for a step movtion
+            nextPosition.y += Mathf.Sin(moveTime * Mathf.PI) * targetHeight;
 
-            // update the current position
-            currentPosition = nextPosition;
+            // update current postiion
+            currentTargetPosition = nextPosition;
 
-            moveTime += Time.deltaTime * limbSpeed;
+            // lerp the current normal to the new normal
+            currentNormal = Vector3.Lerp(oldNormal, newNormal, moveTime);
+
+            moveTime += Time.deltaTime * targetSpeed;
         }
         else
         {
-            oldPosition = newPosition;
+            oldTargetPosition = newTargetPosition;
+            oldNormal = newNormal;
         }
     }
 
-    // check if the current leg is moving
-    public bool IsTargetMoving => moveTime < 1;
+    public bool IsLegMoving => moveTime < 1;
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawSphere(newPosition, 0.5f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(raycastPosition, 0.25f);
+        if (currentDistance < targetDistance)
+            Gizmos.DrawLine(transform.position, raycastPosition);
+        else
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(transform.position, raycastPosition);
+        }
     }
 }
