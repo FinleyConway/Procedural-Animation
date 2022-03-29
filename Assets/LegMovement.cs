@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class IKTargetSolver : MonoBehaviour
+public class LegMovement : MonoBehaviour
 {
     [Header("Raycast Variables")]
     [SerializeField] private Transform raycastOrigin = default;
@@ -8,7 +8,7 @@ public class IKTargetSolver : MonoBehaviour
     [SerializeField] private LayerMask groundLayer = default;
 
     [Header("The Objects Parts")]
-    [SerializeField] private IKTargetSolver otherTarget = default;
+    [SerializeField] private LegMovement otherTarget = default;
     [SerializeField] private Transform body = default;
 
     [Header("Leg Settings")]
@@ -16,11 +16,11 @@ public class IKTargetSolver : MonoBehaviour
     [SerializeField] private float targetHeight;
     [SerializeField] private float targetSpeed;
 
-    private Vector3 currentTargetPosition;
+    public Vector3 CurrentTargetPosition { get; private set; }
     private Vector3 oldTargetPosition;
     private Vector3 newTargetPosition;
 
-    private Vector3 currentNormal;
+    public Vector3 CurrentNormal { get; private set; }
     private Vector3 oldNormal;
     private Vector3 newNormal;
 
@@ -34,20 +34,20 @@ public class IKTargetSolver : MonoBehaviour
     {
         moveTime = 1;
 
-        currentTargetPosition = transform.position;
-        oldTargetPosition = currentTargetPosition;
-        newTargetPosition = currentTargetPosition;
+        CurrentTargetPosition = transform.position;
+        oldTargetPosition = CurrentTargetPosition;
+        newTargetPosition = CurrentTargetPosition;
 
-        currentNormal = transform.up;
-        oldNormal = currentNormal;
-        newNormal = currentNormal;
+        CurrentNormal = transform.up;
+        oldNormal = CurrentNormal;
+        newNormal = CurrentNormal;
     }
 
     private void Update()
     {
         // update current and normal positon
-        transform.position = currentTargetPosition;
-        transform.up = currentNormal;
+        transform.position = CurrentTargetPosition;
+        transform.up = CurrentNormal;
 
         GetTargetNewPosition();
         MoveTargetPosition();
@@ -58,8 +58,8 @@ public class IKTargetSolver : MonoBehaviour
     {
         RaycastHit hit;
 
-        // sends a raycast on surface level to find target position 
-        if (Physics.Raycast(raycastOrigin.position, body.up.normalized * -1, out hit, groundCheckDistance, groundLayer))
+        // sends a raycast on surface level to find target normal and position 
+        if (Physics.Raycast(raycastOrigin.position, Vector3.down, out hit, groundCheckDistance, groundLayer))
         {
             // get position and rotation of the surface of the ground
             raycastPosition = hit.point;
@@ -85,15 +85,14 @@ public class IKTargetSolver : MonoBehaviour
             // lerp current postiion to new position
             Vector3 nextPosition = Vector3.Lerp(oldTargetPosition, newTargetPosition, moveTime);
             // curve the y axis for a step movtion
-            nextPosition.y += Mathf.Sin(moveTime * Mathf.PI) * targetHeight;
+            nextPosition.y += Mathf.Sin(moveTime * Mathf.PI) * targetHeight; // might change later with animation curve
 
             // update current postiion
-            currentTargetPosition = nextPosition;
+            CurrentTargetPosition = nextPosition;
 
             // lerp the current normal to the new normal
-            currentNormal = Vector3.Lerp(oldNormal, newNormal, moveTime);
-
-            moveTime += Time.deltaTime * targetSpeed;
+            CurrentNormal = Vector3.Lerp(oldNormal, newNormal, moveTime);
+            moveTime += Time.deltaTime * targetSpeed; // might change later with animation curve
         }
         else
         {
@@ -102,12 +101,15 @@ public class IKTargetSolver : MonoBehaviour
         }
     }
 
+    // function to check if the current leg is moving
     public bool IsLegMoving => moveTime < 1;
 
+    // debugging
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(raycastPosition, 0.25f);
+        Gizmos.DrawRay(raycastOrigin.position, Vector3.down * groundCheckDistance);
         if (currentDistance < targetDistance)
             Gizmos.DrawLine(transform.position, raycastPosition);
         else

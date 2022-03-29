@@ -6,17 +6,14 @@ public class SpiderController : MonoBehaviour
 {
     [SerializeField] private float speed;
 
-    private Rigidbody rb;
-
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
     }
 
     private void Update()
     {
-        Vector3 input = new Vector3(Input.GetAxis("Horizontal") * speed, rb.velocity.y, Input.GetAxis("Vertical") * speed);
+        Vector3 input = new Vector3(Input.GetAxis("Horizontal") * speed, 0, Input.GetAxis("Vertical") * speed);
 
-        rb.velocity = transform.TransformDirection(input);
+        transform.position += transform.TransformDirection(input) * Time.deltaTime;
     }
 }
