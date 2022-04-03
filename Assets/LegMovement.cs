@@ -9,7 +9,7 @@ public class LegMovement : MonoBehaviour
     [Header("The Objects Parts")]
     [SerializeField] private LegMovement otherTarget = default;
     [SerializeField] private Transform body = default;
-    [SerializeField] private Transform endTip = default;
+    //[SerializeField] private Transform endTip = default;
 
     [Header("Leg Settings")]
     [SerializeField] private float targetDistance;
@@ -31,7 +31,7 @@ public class LegMovement : MonoBehaviour
 
     private void Awake()
     {
-        transform.position = endTip.position;
+        //transform.position = endTip.position;
 
         targetOffset.x = transform.localPosition.x;
         targetOffset.z = transform.localPosition.z;
