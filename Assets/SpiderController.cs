@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class SpiderController : MonoBehaviour
 {
-    [SerializeField] private float speed;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float rotateSpeed;
 
     private void Awake()
     {
@@ -12,8 +13,10 @@ public class SpiderController : MonoBehaviour
 
     private void Update()
     {
-        Vector3 input = new Vector3(Input.GetAxis("Horizontal") * speed, 0, Input.GetAxis("Vertical") * speed);
+        transform.Translate(new Vector3(0, 0, Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime));
 
-        transform.position += transform.TransformDirection(input) * Time.deltaTime;
+        Vector2 rotateInput = new Vector2(0, Input.GetAxis("Horizontal") * rotateSpeed);
+
+        transform.Rotate(rotateInput * Time.deltaTime);
     }
 }

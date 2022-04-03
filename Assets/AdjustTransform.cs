@@ -5,6 +5,13 @@ public class AdjustTransform : MonoBehaviour
     [SerializeField] private float smoothBodyMovementSpeed = 2.5f;
     [SerializeField] private LegMovement[] legMovement;
 
+    private float defaultYPosition;
+
+    private void Awake()
+    {
+        defaultYPosition = transform.position.y;
+    }
+
     private void Update()
     {
         AjustBodyPosition();
@@ -13,7 +20,6 @@ public class AdjustTransform : MonoBehaviour
     // Adjust body position based on the average leg position
     private void AjustBodyPosition()
     {
-        Vector3 currentYPosition = Vector3.zero;
         Vector3 averagePos = Vector3.zero;
 
         // gets the average leg position and normal
@@ -24,7 +30,7 @@ public class AdjustTransform : MonoBehaviour
         averagePos /= legMovement.Length;
 
         // interplate movement to give a smooth realstic feeling
-        currentYPosition = new Vector3(transform.position.x, averagePos.y, transform.position.z);
-        transform.position = Vector3.Lerp(transform.position, currentYPosition, smoothBodyMovementSpeed * Time.deltaTime);
+        Vector3 offset = new Vector3(transform.position.x, averagePos.y + defaultYPosition, transform.position.z);
+        transform.position = Vector3.Lerp(transform.position, offset, smoothBodyMovementSpeed * Time.deltaTime);
     }
 }

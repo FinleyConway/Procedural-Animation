@@ -3,13 +3,13 @@ using UnityEngine;
 public class LegMovement : MonoBehaviour
 {
     [Header("Raycast Variables")]
-    [SerializeField] private Transform raycastOrigin = default;
     [SerializeField] private float groundCheckDistance = 10;
     [SerializeField] private LayerMask groundLayer = default;
 
     [Header("The Objects Parts")]
     [SerializeField] private LegMovement otherTarget = default;
     [SerializeField] private Transform body = default;
+    [SerializeField] private Transform endTip = default;
 
     [Header("Leg Settings")]
     [SerializeField] private float targetDistance;
@@ -19,11 +19,10 @@ public class LegMovement : MonoBehaviour
     public Vector3 CurrentTargetPosition { get; private set; }
     private Vector3 oldTargetPosition;
     private Vector3 newTargetPosition;
-
-    public Vector3 CurrentNormal { get; private set; }
+    private Vector3 targetOffset;
+    private Vector3 currentNormal;
     private Vector3 oldNormal;
     private Vector3 newNormal;
-
     private Vector3 raycastPosition;
     private Vector3 raycastNormal;
 
@@ -32,22 +31,27 @@ public class LegMovement : MonoBehaviour
 
     private void Awake()
     {
-        moveTime = 1;
+        transform.position = endTip.position;
+
+        targetOffset.x = transform.localPosition.x;
+        targetOffset.z = transform.localPosition.z;
 
         CurrentTargetPosition = transform.position;
         oldTargetPosition = CurrentTargetPosition;
         newTargetPosition = CurrentTargetPosition;
 
-        CurrentNormal = transform.up;
-        oldNormal = CurrentNormal;
-        newNormal = CurrentNormal;
+        currentNormal = transform.up;
+        oldNormal = currentNormal;
+        newNormal = currentNormal;
+
+        moveTime = 1;
     }
 
     private void Update()
     {
         // update current and normal positon
         transform.position = CurrentTargetPosition;
-        transform.up = CurrentNormal;
+        transform.up = currentNormal;
 
         GetTargetNewPosition();
         MoveTargetPosition();
@@ -56,10 +60,10 @@ public class LegMovement : MonoBehaviour
     // finds the next target posiiton
     private void GetTargetNewPosition()
     {
-        RaycastHit hit;
-
         // sends a raycast on surface level to find target normal and position 
-        if (Physics.Raycast(raycastOrigin.position, Vector3.down, out hit, groundCheckDistance, groundLayer))
+        RaycastHit hit;
+        Ray ray = new Ray(body.position - -body.forward.normalized * targetOffset.z + (body.right * targetOffset.x), body.up.normalized * -1);
+        if (Physics.Raycast(ray, out hit, groundCheckDistance, groundLayer))
         {
             // get position and rotation of the surface of the ground
             raycastPosition = hit.point;
@@ -78,6 +82,7 @@ public class LegMovement : MonoBehaviour
         }
     }
 
+    // interplate current target position to new target position
     private void MoveTargetPosition()
     {
         if (moveTime < 1)
@@ -91,7 +96,7 @@ public class LegMovement : MonoBehaviour
             CurrentTargetPosition = nextPosition;
 
             // lerp the current normal to the new normal
-            CurrentNormal = Vector3.Lerp(oldNormal, newNormal, moveTime);
+            currentNormal = Vector3.Lerp(oldNormal, newNormal, moveTime);
             moveTime += Time.deltaTime * targetSpeed; // might change later with animation curve
         }
         else
@@ -108,8 +113,8 @@ public class LegMovement : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(raycastPosition, 0.25f);
-        Gizmos.DrawRay(raycastOrigin.position, Vector3.down * groundCheckDistance);
+        Gizmos.DrawSphere(newTargetPosition, 0.125f);
+        Gizmos.DrawRay(body.position - -body.forward.normalized * targetOffset.z + (body.right * targetOffset.x), body.up.normalized * -1 * groundCheckDistance);
         if (currentDistance < targetDistance)
             Gizmos.DrawLine(transform.position, raycastPosition);
         else
