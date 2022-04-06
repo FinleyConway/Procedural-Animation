@@ -9,7 +9,6 @@ public class LegMovement : MonoBehaviour
     [Header("The Objects Parts")]
     [SerializeField] private LegMovement otherTarget = default;
     [SerializeField] private Transform body = default;
-    //[SerializeField] private Transform endTip = default;
 
     [Header("Leg Settings")]
     [SerializeField] private float targetDistance;
@@ -24,15 +23,13 @@ public class LegMovement : MonoBehaviour
     private Vector3 oldNormal;
     private Vector3 newNormal;
     private Vector3 raycastPosition;
-    private Vector3 raycastNormal;
+    public Vector3 RaycastNormal { get; private set; }
 
     private float currentDistance;
     private float moveTime;
 
     private void Awake()
     {
-        //transform.position = endTip.position;
-
         targetOffset.x = transform.localPosition.x;
         targetOffset.z = transform.localPosition.z;
 
@@ -67,7 +64,7 @@ public class LegMovement : MonoBehaviour
         {
             // get position and rotation of the surface of the ground
             raycastPosition = hit.point;
-            raycastNormal = hit.normal;
+            RaycastNormal = hit.normal;
         }
 
         // get the distance between the target position and the raycast position
@@ -78,7 +75,7 @@ public class LegMovement : MonoBehaviour
         {
             moveTime = 0;
             newTargetPosition = raycastPosition;
-            newNormal = raycastNormal;
+            newNormal = RaycastNormal;
         }
     }
 
@@ -114,7 +111,9 @@ public class LegMovement : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(newTargetPosition, 0.125f);
+        Gizmos.color = Color.blue;
         Gizmos.DrawRay(body.position - -body.forward.normalized * targetOffset.z + (body.right * targetOffset.x), body.up.normalized * -1 * groundCheckDistance);
+        Gizmos.color = Color.red;
         if (currentDistance < targetDistance)
             Gizmos.DrawLine(transform.position, raycastPosition);
         else
