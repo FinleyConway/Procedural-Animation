@@ -61,7 +61,7 @@ public class LegMovement : MonoBehaviour
     {
         // sends a raycast on surface level to find target normal and position 
         RaycastHit hit;
-        Ray downRay = new Ray(_body.TransformPoint(_targetOffset), _body.up.normalized * -1);
+        Ray downRay = new Ray(_body.position - -_body.forward.normalized * _targetOffset.z + (_body.right * _targetOffset.x), _body.up.normalized * -1);
 
         // get position and rotation of the surface of the ground
         if (Physics.Raycast(downRay, out hit, _groundCheckDownDistance, _groundLayer))
@@ -82,7 +82,7 @@ public class LegMovement : MonoBehaviour
             }
         }
     }
-
+    
     // interplate current target position to new target position
     private void MoveTargetPosition()
     {
@@ -126,6 +126,6 @@ public class LegMovement : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(_newTargetPosition, 0.125f);
         Gizmos.color = Color.blue;
-        Gizmos.DrawRay(_body.TransformPoint(_targetOffset), _body.up.normalized * -1 * _groundCheckDownDistance);
+        Gizmos.DrawRay(_body.position - -_body.forward.normalized * _targetOffset.z + (_body.right * _targetOffset.x), _body.up.normalized * -1 * _groundCheckDownDistance);
     }
 }
