@@ -1,22 +1,25 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class FollowTarget : MonoBehaviour
+namespace FinleyConway
 {
-    [SerializeField] private GameObject _player;
-
-    private NavMeshAgent _ai;
-
-    private void Awake()
+    public class FollowTarget : MonoBehaviour
     {
-        _ai = GetComponent<NavMeshAgent>();
-        _ai.updateUpAxis = false;
-    }
+        [SerializeField] private GameObject _player = default;
 
-    private void Update()
-    {
-        Vector3 newDest = new Vector3(_player.transform.position.x, 0, _player.transform.position.z);
+        private NavMeshAgent _ai;
 
-        _ai.SetDestination(newDest);
+        private void Awake()
+        {
+            _ai = GetComponent<NavMeshAgent>();
+            _ai.updateUpAxis = false;
+        }
+
+        private void Update()
+        {
+            Vector3 newDest = new Vector3(_player.transform.position.x, 0, _player.transform.position.z);
+
+            _ai.SetDestination(newDest);
+        }
     }
 }

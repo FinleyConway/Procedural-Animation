@@ -1,21 +1,24 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+namespace FinleyConway
 {
-    [SerializeField] private float _moveSpeed;
-    [SerializeField] private float _rotateSpeed;
-
-    private void Awake()
+    public class PlayerController : MonoBehaviour
     {
-        Cursor.lockState = CursorLockMode.Locked;
-    }
+        [SerializeField] private float _moveSpeed;
+        [SerializeField] private float _rotateSpeed;
 
-    private void Update()
-    {
-        transform.Translate(new Vector3(0, 0, Input.GetAxis("Vertical") * _moveSpeed * Time.deltaTime));
+        private void Awake()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
-        Vector2 rotateInput = new Vector2(0, Input.GetAxis("Horizontal") * _rotateSpeed);
+        private void Update()
+        {
+            transform.Translate(new Vector3(0, 0, Input.GetAxis("Vertical") * _moveSpeed * Time.deltaTime));
 
-        transform.Rotate(rotateInput * Time.deltaTime);
+            Vector2 rotateInput = new Vector2(0, Input.GetAxis("Horizontal") * _rotateSpeed);
+
+            transform.Rotate(rotateInput * Time.deltaTime);
+        }
     }
 }
