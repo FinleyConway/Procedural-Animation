@@ -1,5 +1,5 @@
+using System.Linq;
 using UnityEngine;
-using FinleyConway.Utilities;
 
 namespace FinleyConway.Animation
 {
@@ -10,7 +10,7 @@ namespace FinleyConway.Animation
         [SerializeField] private LayerMask _groundLayer = default;
 
         [Header("The Objects Parts")]
-        [SerializeField] private LegMovement _otherTarget = default;
+        [SerializeField] private LegMovement[] _otherTargets = default;
         [SerializeField] private Transform _body = default;
 
         [Header("Leg Settings")]
@@ -78,7 +78,7 @@ namespace FinleyConway.Animation
                 RaycastNormal = hit.normal;
 
                 // move leg if distance is too big
-                if (GetTargetPointDistance(transform.position) > _targetDistance && _moveTime >= _moveIterations && !_otherTarget.IsLegMoving)
+                if (GetTargetPointDistance(transform.position) > _targetDistance && _moveTime >= _moveIterations && CanMove)
                 {
                     _moveTime = 0;
 
@@ -93,9 +93,9 @@ namespace FinleyConway.Animation
             // checks the distance between the current position and the raycast hit
             float GetTargetPointDistance(Vector3 position)
             {
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 Debug.DrawLine(position, _raycastPosition, Color.red);
-#endif
+                #endif
                 return Vector3.Distance(position, _raycastPosition);
             }
         }
@@ -117,25 +117,25 @@ namespace FinleyConway.Animation
                 _currentNormal = Vector3.Lerp(_oldNormal, _newNormal, _moveTime);
 
                 _moveTime += Time.deltaTime * _targetSpeed.Evaluate(_moveTime);
-
-                if (!IsLegMoving && _canCameraShake)
-                {
-                    CameraShake.Instance.ShakeCamera(_cameraShakeIntensity, _cameraShakeDuration);
-                }
             }
             else
             {
                 _oldTargetPosition = _newTargetPosition;
                 _oldNormal = _newNormal;
+                //_moveTime = _moveIterations;
             }
         }
 
-        // checks if the current leg is moving
-        public bool IsLegMoving => _moveTime < _moveIterations;
+        // checks if opposite current leg is moving
+        public bool CanMove => _otherTargets.All(x => x.IsGrounded);
+
+        public bool IsGrounded => _moveTime >= _moveIterations;
 
         // debugging
         private void OnDrawGizmosSelected()
         {
+            Gizmos.DrawWireSphere(transform.position, 0.125f);
+
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(_newTargetPosition, 0.125f);
             Gizmos.color = Color.blue;

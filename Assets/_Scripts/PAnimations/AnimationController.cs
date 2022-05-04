@@ -9,7 +9,7 @@ namespace FinleyConway.Animation
         [SerializeField] private LayerMask _ground = default;
 
         [Header("Body Parts")]
-        [SerializeField] private LegMovement[] _legs = default;
+        [SerializeField] private LegMovement[] _legs;
         [SerializeField] private Transform _body = default;
 
         [Header("Body Settings")]
@@ -65,6 +65,23 @@ namespace FinleyConway.Animation
             // rotate body
             Quaternion bodyRotation = Quaternion.LookRotation(_zRotation, _yRotation);
             transform.rotation = Quaternion.Slerp(transform.rotation, bodyRotation, _smoothBodyRotationSpeed * Time.deltaTime);
+        }
+
+        // gets the normal of the plane and outputs either 1 or -1 depending on the angle of the slope
+        // upwards direction is -1
+        // downwards direction is 1
+        public float InertiaHandler()
+        {
+            float slope = 0;
+
+            RaycastHit hit;
+            if (Physics.Raycast(_body.position, Vector3.down, out hit, _raycastDistance, _ground))
+            {
+                slope = Vector3.Dot(_body.right, (Vector3.Cross(Vector3.up, hit.normal)));
+            }
+
+            print(slope);
+            return slope;
         }
     }
 }
