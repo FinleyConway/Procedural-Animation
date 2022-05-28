@@ -53,6 +53,7 @@ namespace FinleyConway.Animation
 
             // lerp movement to give a smooth realistic feeling
             CurrentPosition = averageLegPos + _yRotation.normalized * _bodyOffset;
+            //CurrentPosition = new Vector3(transform.position.x, averageLegPos.y + _yRotation.normalized.y * _bodyOffset, transform.position.z);
 
             transform.position = Vector3.MoveTowards(transform.position, CurrentPosition, _smoothBodyMovementSpeed * Time.deltaTime);
         }
@@ -80,7 +81,6 @@ namespace FinleyConway.Animation
                 slope = Vector3.Dot(_body.right, (Vector3.Cross(Vector3.up, hit.normal)));
             }
 
-            print(slope);
             return slope;
         }
     }

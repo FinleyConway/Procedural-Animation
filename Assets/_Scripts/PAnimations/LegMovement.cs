@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using FinleyConway.Utilities;
 
 namespace FinleyConway.Animation
 {
@@ -78,14 +79,14 @@ namespace FinleyConway.Animation
                 RaycastNormal = hit.normal;
 
                 // move leg if distance is too big
-                if (GetTargetPointDistance(transform.position) > _targetDistance && _moveTime >= _moveIterations && CanMove)
+                if ((GetTargetPointDistance(transform.position) > _targetDistance) && _moveTime >= _moveIterations && CanMove)
                 {
                     _moveTime = 0;
 
                     // gets the direction in which the body is moving in
                     int direction = _body.InverseTransformPoint(hit.point).z > _body.InverseTransformPoint(_newTargetPosition).z ? 1 : -1;
 
-                    _newTargetPosition = hit.point + _body.forward * direction * _targetLength;
+                    _newTargetPosition = _raycastPosition + _body.forward * direction * _targetLength;
                     _newNormal = RaycastNormal;
                 }
             }
@@ -106,10 +107,10 @@ namespace FinleyConway.Animation
             if (_moveTime < _moveIterations)
             {
                 // lerp current postiion to new position
-                Vector3 nextPosition = Vector3.Lerp(_oldTargetPosition, _newTargetPosition, _moveTime);
+                Vector3 nextPosition = Vector3.MoveTowards(_oldTargetPosition, _newTargetPosition, _moveTime);
                 // curve the y axis for a step movtion
                 nextPosition.y += _targetHeight.Evaluate(_moveTime);
-
+                
                 // update current postiion
                 CurrentPosition = nextPosition;
 
@@ -117,28 +118,31 @@ namespace FinleyConway.Animation
                 _currentNormal = Vector3.Lerp(_oldNormal, _newNormal, _moveTime);
 
                 _moveTime += Time.deltaTime * _targetSpeed.Evaluate(_moveTime);
+
+                // shake camera when land foot
+                if (!(_moveTime < _moveIterations) && _canCameraShake)
+                {
+                    CameraShake.Instance.ShakeCamera(_cameraShakeIntensity, _cameraShakeDuration);
+                }
             }
             else
             {
                 _oldTargetPosition = _newTargetPosition;
                 _oldNormal = _newNormal;
-                //_moveTime = _moveIterations;
             }
         }
 
         // checks if opposite current leg is moving
-        public bool CanMove => _otherTargets.All(x => x.IsGrounded);
+        public bool CanMove => _otherTargets.All(x => x.IsMoving);
 
-        public bool IsGrounded => _moveTime >= _moveIterations;
+        public bool IsMoving => _moveTime >= _moveIterations;
 
         // debugging
         private void OnDrawGizmosSelected()
         {
-            Gizmos.DrawWireSphere(transform.position, 0.125f);
-
             Gizmos.color = Color.red;
-            Gizmos.DrawSphere(_newTargetPosition, 0.125f);
-            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(_newTargetPosition, 0.05f);
+            Gizmos.color = Color.green;
             Gizmos.DrawRay(_body.position - -_body.forward.normalized * _targetOffset.z + (_body.right * _targetOffset.x), _body.up.normalized * -1 * _groundCheckDownDistance);
         }
     }
